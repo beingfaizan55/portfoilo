@@ -1,816 +1,176 @@
-/* ============================================================
-   FAIZAN — PORTFOLIO
-   Design language: engineering blueprint / schematic HUD
-   ============================================================ */
-
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap');
-
-:root{
-  --bg:            #0A1420;
-  --bg-panel:      #0F1E30;
-  --bg-panel-2:    #122439;
-  --grid-line:     rgba(94,234,212,0.055);
-  --grid-line-2:   rgba(94,234,212,0.02);
-  --border:        #1E3650;
-  --border-soft:   #16283c;
-  --accent:        #5EEAD4;
-  --accent-rgb:    94,234,212;
-  --accent-dim:    rgba(94,234,212,0.12);
-  --accent-2:      #FF7A45;
-  --accent-2-rgb:  255,122,69;
-  --text:          #E9F2F6;
-  --text-muted:    #8AA2B8;
-  --text-dim:      #4E6883;
-
-  --font-display: 'Space Grotesk', sans-serif;
-  --font-body:    'Inter', sans-serif;
-  --font-mono:    'JetBrains Mono', monospace;
-
-  --radius: 10px;
-  --ease: cubic-bezier(.16,.8,.24,1);
-  --header-h: 76px;
-}
-
-*{ margin:0; padding:0; box-sizing:border-box; }
-
-html{ scroll-behavior:smooth; }
-
-body{
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--font-body);
-  line-height: 1.6;
-  overflow-x: hidden;
-  position: relative;
-}
-
-/* ---------- Blueprint grid backdrop ---------- */
-body::before{
-  content:"";
-  position: fixed;
-  inset: 0;
-  z-index: 0;
-  pointer-events: none;
-  background-image:
-    linear-gradient(var(--grid-line) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line) 1px, transparent 1px),
-    linear-gradient(var(--grid-line-2) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line-2) 1px, transparent 1px);
-  background-size: 88px 88px, 88px 88px, 22px 22px, 22px 22px;
-  background-position: -1px -1px;
-  mask-image: radial-gradient(ellipse 90% 70% at 50% 0%, black 30%, transparent 85%);
-}
-
-section, header, footer{ position: relative; z-index: 1; }
-
-::selection{ background: var(--accent-dim); color: var(--accent); }
-
-a{ color: inherit; text-decoration: none; }
-ul{ list-style: none; }
-img{ max-width:100%; display:block; }
-
-h1,h2,h3{ font-family: var(--font-display); font-weight: 600; letter-spacing: -0.01em; }
-
-/* ---------- Reveal-on-scroll base ---------- */
-[data-reveal]{
-  opacity: 0;
-  transform: translateY(28px);
-  transition: opacity .7s var(--ease), transform .7s var(--ease);
-  transition-delay: var(--reveal-delay, 0s);
-}
-[data-reveal].in-view{
-  opacity: 1;
-  transform: translateY(0);
-}
-
-/* ==================================================
-   HEADER / NAV
-   ================================================== */
-header{
-  position: fixed;
-  top:0; left:0; right:0;
-  height: var(--header-h);
-  display:flex;
-  align-items:center;
-  justify-content: space-between;
-  padding: 0 6vw;
-  background: rgba(10,20,32,0.55);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border-bottom: 1px solid transparent;
-  z-index: 100;
-  transition: background .4s var(--ease), border-color .4s var(--ease), box-shadow .4s var(--ease);
-}
-header.scrolled{
-  background: rgba(9,17,28,0.82);
-  border-bottom-color: var(--border-soft);
-  box-shadow: 0 10px 30px -20px rgba(0,0,0,0.6);
-}
-
-.logo{
-  font-family: var(--font-display);
-  font-size: 1.15rem;
-  font-weight: 700;
-  letter-spacing: 0.02em;
-  display:flex;
-  align-items:center;
-  gap:.55rem;
-}
-.logo::before{
-  content:"";
-  width:8px; height:8px;
-  border-radius:50%;
-  background: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-dim), 0 0 12px 2px rgba(var(--accent-rgb),.7);
-  animation: pulse-dot 2.4s ease-in-out infinite;
-}
-.logo span{ color: var(--accent); }
-
-nav ul{ display:flex; gap: 2.4rem; }
-nav a{
-  position:relative;
-  font-family: var(--font-mono);
-  font-size: .82rem;
-  letter-spacing:.04em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-  padding: 6px 0;
-  transition: color .3s var(--ease);
-}
-nav a::after{
-  content:"";
-  position:absolute;
-  left:0; bottom:0;
-  height:1px; width:100%;
-  background: var(--accent);
-  transform: scaleX(0);
-  transform-origin: right;
-  transition: transform .35s var(--ease);
-}
-nav a:hover{ color: var(--text); }
-nav a:hover::after{ transform: scaleX(1); transform-origin: left; }
-
-/* scroll-spy active tab */
-nav a.active{ color: var(--accent); }
-nav a.active::after{ transform: scaleX(1); transform-origin: left; }
-nav a.active::before{
-  content:"◆";
-  position:absolute;
-  left:-14px; top:50%;
-  transform: translateY(-50%);
-  font-size:.55rem;
-  color: var(--accent);
-  animation: pulse-dot 2.4s ease-in-out infinite;
-}
-
-/* ---------- Mobile hamburger toggle ---------- */
-.menu-toggle{
-  display:none;
-  flex-direction:column;
-  justify-content:center;
-  align-items:center;
-  gap:5px;
-  width: 40px;
-  height: 40px;
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  cursor:pointer;
-  z-index: 110;
-  transition: border-color .3s var(--ease), background .3s var(--ease);
-}
-.menu-toggle span{
-  display:block;
-  width: 18px;
-  height: 1.5px;
-  background: var(--text);
-  border-radius: 2px;
-  transition: transform .4s var(--ease), opacity .3s var(--ease), background .3s var(--ease);
-}
-.menu-toggle:hover{ border-color: var(--accent); }
-.menu-toggle.open{ background: var(--bg-panel); border-color: var(--accent); }
-.menu-toggle.open span:nth-child(1){ transform: translateY(6.5px) rotate(45deg); background: var(--accent); }
-.menu-toggle.open span:nth-child(2){ opacity: 0; transform: scaleX(0); }
-.menu-toggle.open span:nth-child(3){ transform: translateY(-6.5px) rotate(-45deg); background: var(--accent); }
-
-.nav-backdrop{
-  position: fixed;
-  inset:0;
-  background: rgba(6,12,20,0.6);
-  backdrop-filter: blur(3px);
-  opacity:0;
-  pointer-events:none;
-  transition: opacity .4s var(--ease);
-  z-index: 90;
-}
-.nav-backdrop.open{ opacity:1; pointer-events:auto; }
-
-/* ---------- Back to top ---------- */
-.back-to-top{
-  position: fixed;
-  right: 26px;
-  bottom: 26px;
-  width: 44px; height: 44px;
-  border-radius: 50%;
-  border: 1px solid var(--border);
-  background: var(--bg-panel);
-  color: var(--accent);
-  font-size: 1.1rem;
-  line-height:1;
-  cursor:pointer;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  opacity:0;
-  visibility:hidden;
-  transform: translateY(12px);
-  transition: opacity .4s var(--ease), transform .4s var(--ease), border-color .3s var(--ease), box-shadow .3s var(--ease);
-  z-index: 80;
-}
-.back-to-top.visible{ opacity:1; visibility:visible; transform: translateY(0); }
-.back-to-top:hover{
-  border-color: var(--accent);
-  box-shadow: 0 10px 24px -14px rgba(var(--accent-rgb),.6);
-  transform: translateY(-3px);
-}
-
-/* ==================================================
-   HERO
-   ================================================== */
-.hero{
-  min-height: 100vh;
-  display:flex;
-  flex-direction: column;
-  align-items:flex-start;
-  justify-content:center;
-  padding: var(--header-h) 6vw 6rem;
-  max-width: 1100px;
-  overflow: hidden;
-}
-
-/* scanning sweep line, signature motion element */
-.hero::after{
-  content:"";
-  position:absolute;
-  left:0; right:0;
-  height:1px;
-  top:0;
-  background: linear-gradient(90deg, transparent, rgba(var(--accent-rgb),.55) 40%, rgba(var(--accent-rgb),.55) 60%, transparent);
-  box-shadow: 0 0 18px 2px rgba(var(--accent-rgb),.35);
-  animation: scan-sweep 7s linear infinite;
-  pointer-events:none;
-}
-
-.hero span{ /* the eyebrow tag, first direct span child */ }
-
-.hero > span:first-child{
-  font-family: var(--font-mono);
-  font-size: .8rem;
-  letter-spacing: .12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  border: 1px solid var(--border);
-  background: var(--bg-panel);
-  padding: 7px 14px;
-  border-radius: 4px;
-  display:inline-flex;
-  align-items:center;
-  gap:.5rem;
-  opacity:0;
-  animation: fade-up .7s var(--ease) .1s forwards;
-}
-.hero > span:first-child::before{ content:"◆"; font-size:.65rem; }
-
-.hero h1{
-  font-size: clamp(2.3rem, 5.4vw, 4.1rem);
-  line-height: 1.12;
-  margin-top: 1.4rem;
-  max-width: 16ch;
-  opacity:0;
-  animation: fade-up .7s var(--ease) .28s forwards;
-}
-.hero h1 span{
-  background: linear-gradient(100deg, var(--accent) 20%, #B7FFF0 40%, var(--accent) 60%);
-  background-size: 220% 100%;
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
-  animation: text-shimmer 5s linear infinite 1.1s;
-}
-
-.hero p{
-  margin-top: 1.5rem;
-  max-width: 52ch;
-  color: var(--text-muted);
-  font-size: 1.05rem;
-  opacity:0;
-  animation: fade-up .7s var(--ease) .44s forwards;
-}
-
-.buttons{
-  display:flex;
-  gap: 1rem;
-  margin-top: 2.4rem;
-  opacity:0;
-  animation: fade-up .7s var(--ease) .6s forwards;
-}
-
-.btn{
-  position:relative;
-  overflow:hidden;
-  font-family: var(--font-mono);
-  font-size: .85rem;
-  letter-spacing:.03em;
-  padding: 13px 24px;
-  border-radius: 6px;
-  transition: transform .35s var(--ease), box-shadow .35s var(--ease), border-color .35s var(--ease), background .35s var(--ease);
-  display:inline-block;
-}
-.btn::before{
-  content:"";
-  position:absolute;
-  top:0; left:-120%;
-  width: 60%; height:100%;
-  background: linear-gradient(115deg, transparent, rgba(255,255,255,.35), transparent);
-  transform: skewX(-20deg);
-  transition: left .65s var(--ease);
-}
-.btn:hover::before{ left: 130%; }
-
-.btn-primary{
-  background: var(--accent);
-  color: #06141C;
-  font-weight: 600;
-  box-shadow: 0 0 0 0 rgba(var(--accent-rgb),.5);
-}
-.btn-primary:hover{
-  transform: translateY(-3px);
-  box-shadow: 0 14px 28px -12px rgba(var(--accent-rgb),.55);
-}
-
-.btn-secondary{
-  color: var(--text);
-  border: 1px solid var(--border);
-  background: transparent;
-}
-.btn-secondary:hover{
-  border-color: var(--accent);
-  color: var(--accent);
-  transform: translateY(-3px);
-}
-
-/* ==================================================
-   SECTION HEADERS (shared)
-   ================================================== */
-section:not(.hero):not(.contact){ padding: 8rem 6vw; }
-
-.section-header{
-  max-width: 640px;
-  margin: 0 auto 3.5rem;
-  text-align:center;
-}
-.section-header h2{
-  font-size: clamp(1.7rem, 3vw, 2.4rem);
-  position: relative;
-  display:inline-block;
-  padding-bottom: .9rem;
-}
-.section-header h2::after{
-  content:"";
-  position:absolute;
-  bottom:0; left:50%;
-  width: 46px; height: 2px;
-  background: var(--accent);
-  transform: translateX(-50%) scaleX(0);
-  transform-origin:center;
-  transition: transform .6s var(--ease) .15s;
-}
-.section-header.in-view h2::after{ transform: translateX(-50%) scaleX(1); }
-.section-header p{
-  color: var(--text-muted);
-  margin-top: .9rem;
-  font-size: 1rem;
-}
-
-/* ==================================================
-   SERVICES
-   ================================================== */
-.services-grid{
-  max-width: 1100px;
-  margin: 0 auto;
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-  gap: 1.6rem;
-}
-
-.service-card{
-  position:relative;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius);
-  padding: 2.4rem 2rem;
-  transition: transform .5s var(--ease), border-color .5s var(--ease), box-shadow .5s var(--ease);
-}
-.service-card:nth-child(1){ --reveal-delay: 0s; }
-.service-card:nth-child(2){ --reveal-delay: .12s; }
-.service-card:nth-child(3){ --reveal-delay: .24s; }
-
-/* HUD corner brackets, drawn in on reveal */
-.service-card::before,
-.service-card::after,
-.project-card::before,
-.project-card::after{
-  content:"";
-  position:absolute;
-  width: 16px; height: 16px;
-  border: 1px solid var(--accent);
-  opacity: 0;
-  transition: opacity .5s var(--ease) .3s, width .5s var(--ease) .3s, height .5s var(--ease) .3s;
-}
-.service-card::before{ top:-1px; left:-1px; border-right:none; border-bottom:none; }
-.service-card::after{ bottom:-1px; right:-1px; border-left:none; border-top:none; }
-.service-card.in-view::before,
-.service-card.in-view::after{ opacity: 1; }
-
-.service-card:hover{
-  transform: translateY(-6px);
-  border-color: var(--border);
-  box-shadow: 0 20px 40px -26px rgba(0,0,0,.55);
-}
-.service-card:hover::before,
-.service-card:hover::after{ width: 22px; height: 22px; }
-
-.service-card .icon{
-  font-size: 1.9rem;
-  display:inline-block;
-  margin-bottom: 1.1rem;
-  animation: float-idle 4.5s ease-in-out infinite;
-  transition: transform .4s var(--ease);
-}
-.service-card:nth-child(2) .icon{ animation-delay: .3s; }
-.service-card:nth-child(3) .icon{ animation-delay: .6s; }
-.service-card:hover .icon{ transform: scale(1.15) rotate(-6deg); }
-
-.service-card h3{
-  font-size: 1.15rem;
-  margin-bottom: .7rem;
-}
-.service-card p{
-  color: var(--text-muted);
-  font-size: .93rem;
-}
-
-/* ==================================================
-   SKILLS
-   ================================================== */
-.skills-container{
-  max-width: 900px;
-  margin: 0 auto;
-  display:flex;
-  flex-wrap:wrap;
-  gap: .85rem;
-  justify-content:center;
-}
-
-.skill-tag{
-  font-family: var(--font-mono);
-  font-size: .82rem;
-  color: var(--text-muted);
-  border: 1px solid var(--border);
-  background: var(--bg-panel);
-  padding: 9px 16px;
-  border-radius: 20px;
-  opacity:0;
-  transform: translateY(14px) scale(.96);
-  transition: opacity .5s var(--ease) var(--reveal-delay,0s),
-              transform .5s var(--ease) var(--reveal-delay,0s),
-              border-color .3s var(--ease), color .3s var(--ease),
-              background .3s var(--ease), box-shadow .3s var(--ease);
-}
-.skill-tag.in-view{ opacity:1; transform: translateY(0) scale(1); }
-.skill-tag:hover{
-  color: var(--accent);
-  border-color: var(--accent);
-  background: var(--accent-dim);
-  box-shadow: 0 8px 20px -14px rgba(var(--accent-rgb),.7);
-  transform: translateY(-3px) scale(1.03);
-}
-
-/* ==================================================
-   PROJECTS
-   ================================================== */
-.projects-grid{
-  max-width: 1100px;
-  margin: 0 auto;
-  display:grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.6rem;
-}
-
-.project-card{
-  position:relative;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius);
-  padding: 2.2rem 1.9rem 2rem;
-  overflow:hidden;
-  transition: transform .5s var(--ease), box-shadow .5s var(--ease), border-color .5s var(--ease);
-}
-.project-card:nth-child(1){ --reveal-delay: 0s; }
-.project-card:nth-child(2){ --reveal-delay: .12s; }
-.project-card:nth-child(3){ --reveal-delay: .24s; }
-
-.project-card::before{ top:-1px; left:-1px; border-right:none; border-bottom:none; }
-.project-card::after{ bottom:-1px; right:-1px; border-left:none; border-top:none; }
-.project-card.in-view::before,
-.project-card.in-view::after{ opacity:1; }
-
-/* top accent bar that draws in */
-.project-card .project-meta{ position:relative; z-index:1; }
-.project-card{ }
-.project-card > .project-meta::before{ content:none; }
-
-.project-card{
-  border-top: 2px solid var(--border-soft);
-}
-.project-card{
-  isolation:isolate;
-}
-.project-card::marker{ content:none; }
-
-/* animated top line via extra pseudo on wrapper using background gradient trick */
-.project-card{
-  background-image: linear-gradient(90deg, var(--accent), var(--accent-2));
-  background-repeat: no-repeat;
-  background-size: 0% 2px;
-  background-position: top left;
-  transition: background-size .8s var(--ease) .2s, transform .5s var(--ease), box-shadow .5s var(--ease), border-color .5s var(--ease);
-}
-.project-card.in-view{ background-size: 100% 2px; }
-
-.project-card:hover{
-  transform: translateY(-6px);
-  box-shadow: 0 20px 40px -26px rgba(0,0,0,.55);
-}
-
-.category{
-  font-family: var(--font-mono);
-  font-size: .72rem;
-  letter-spacing:.06em;
-  text-transform: uppercase;
-  color: var(--accent);
-  display:inline-flex;
-  align-items:center;
-  gap:.4rem;
-}
-.category::before{ content:"›"; color: var(--accent-2); }
-
-.project-card h3{
-  font-size: 1.2rem;
-  margin: .8rem 0 .7rem;
-  display:inline-block;
-  position:relative;
-}
-.project-card h3::after{
-  content:"";
-  position:absolute;
-  left:0; bottom:-3px;
-  width:100%; height:1px;
-  background: var(--text-dim);
-  transform: scaleX(0);
-  transform-origin:left;
-  transition: transform .4s var(--ease);
-}
-.project-card:hover h3::after{ transform: scaleX(1); background: var(--accent); }
-
-.project-card p{
-  color: var(--text-muted);
-  font-size: .93rem;
-}
-
-/* ==================================================
-   CONTACT
-   ================================================== */
-.contact{ padding: 8rem 6vw 6rem; }
-
-.contact-container{
-  max-width: 1050px;
-  margin: 0 auto;
-  display:grid;
-  grid-template-columns: .8fr 1.2fr;
-  gap: 3rem;
-  background: var(--bg-panel);
-  border: 1px solid var(--border-soft);
-  border-radius: var(--radius);
-  padding: 3rem;
-}
-
-.contact-info h3{
-  font-size: 1.05rem;
-  margin-bottom: 1.4rem;
-  color: var(--text);
-}
-.contact-info p{
-  color: var(--text-muted);
-  font-size: .93rem;
-  margin-bottom: 1.6rem;
-}
-.contact-info a{
-  color: var(--accent);
-  font-family: var(--font-mono);
-  font-size: .9rem;
-  position:relative;
-  transition: color .3s var(--ease);
-}
-.contact-info a:hover{ color: #B7FFF0; }
-
-.contact-form{ display:flex; flex-direction:column; gap: 1.3rem; }
-
-.form-group{ display:flex; flex-direction:column; gap:.5rem; }
-.form-group label{
-  font-family: var(--font-mono);
-  font-size: .75rem;
-  letter-spacing:.05em;
-  text-transform: uppercase;
-  color: var(--text-dim);
-}
-
-.form-group input,
-.form-group textarea{
-  background: var(--bg-panel-2);
-  border: 1px solid var(--border);
-  border-radius: 6px;
-  padding: 12px 14px;
-  color: var(--text);
-  font-family: var(--font-body);
-  font-size: .95rem;
-  resize: vertical;
-  transition: border-color .35s var(--ease), box-shadow .35s var(--ease), background .35s var(--ease);
-}
-.form-group input::placeholder,
-.form-group textarea::placeholder{ color: var(--text-dim); }
-
-.form-group input:focus,
-.form-group textarea:focus{
-  outline:none;
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px var(--accent-dim);
-  background: #0D1B2B;
-}
-
-.form-submit-btn{
-  align-self:flex-start;
-  border:none;
-  cursor:pointer;
-  margin-top:.4rem;
-}
-.form-submit-btn:active{ transform: translateY(0) scale(.97); }
-
-/* ==================================================
-   FOOTER
-   ================================================== */
-footer{
-  text-align:center;
-  padding: 2.4rem 6vw;
-  border-top: 1px solid var(--border-soft);
-  color: var(--text-dim);
-  font-family: var(--font-mono);
-  font-size: .78rem;
-  letter-spacing:.03em;
-}
-
-/* ==================================================
-   KEYFRAMES
-   ================================================== */
-@keyframes fade-up{
-  from{ opacity:0; transform: translateY(18px); }
-  to{ opacity:1; transform: translateY(0); }
-}
-@keyframes pulse-dot{
-  0%,100%{ box-shadow: 0 0 0 3px var(--accent-dim), 0 0 10px 1px rgba(var(--accent-rgb),.6); }
-  50%{ box-shadow: 0 0 0 5px var(--accent-dim), 0 0 16px 3px rgba(var(--accent-rgb),.85); }
-}
-@keyframes scan-sweep{
-  0%{ transform: translateY(0); opacity:0; }
-  5%{ opacity:1; }
-  95%{ opacity:1; }
-  100%{ transform: translateY(100vh); opacity:0; }
-}
-@keyframes text-shimmer{
-  0%{ background-position: 0% 0; }
-  100%{ background-position: -220% 0; }
-}
-@keyframes float-idle{
-  0%,100%{ transform: translateY(0); }
-  50%{ transform: translateY(-6px); }
-}
-
-/* ==================================================
-   RESPONSIVE
-   ================================================== */
-
-/* Tablet */
-@media (max-width: 1024px){
-  section:not(.hero):not(.contact){ padding: 6.5rem 5vw; }
-  .contact{ padding: 6.5rem 5vw 5rem; }
-  .hero{ padding-left: 5vw; padding-right: 5vw; }
-  .contact-container{ gap: 2.2rem; padding: 2.4rem; }
-}
-
-/* Mobile nav breakpoint */
-@media (max-width: 860px){
-  header{ padding: 0 5vw; }
-  .menu-toggle{ display:flex; }
-
-  nav#primary-nav{
-    position: fixed;
-    top: 0; right: 0;
-    height: 100vh;
-    width: min(78vw, 320px);
-    background: rgba(10,20,32,0.97);
-    border-left: 1px solid var(--border-soft);
-    backdrop-filter: blur(16px);
-    padding: calc(var(--header-h) + 2.5rem) 2.2rem 2rem;
-    transform: translateX(100%);
-    transition: transform .5s var(--ease);
-    z-index: 100;
-  }
-  nav#primary-nav.open{ transform: translateX(0); }
-
-  nav#primary-nav ul{
-    flex-direction: column;
-    gap: 0;
-  }
-  nav#primary-nav li{
-    border-bottom: 1px solid var(--border-soft);
-  }
-  nav#primary-nav a{
-    display:block;
-    padding: 1.15rem 0;
-    font-size: .95rem;
-    opacity:0;
-    transform: translateX(16px);
-    transition: opacity .45s var(--ease), transform .45s var(--ease), color .3s var(--ease);
-  }
-  nav#primary-nav.open a{ opacity:1; transform: translateX(0); }
-  nav#primary-nav.open li:nth-child(1) a{ transition-delay: .08s; }
-  nav#primary-nav.open li:nth-child(2) a{ transition-delay: .14s; }
-  nav#primary-nav.open li:nth-child(3) a{ transition-delay: .2s; }
-  nav#primary-nav.open li:nth-child(4) a{ transition-delay: .26s; }
-  nav#primary-nav a::after{ display:none; }
-  nav a.active::before{ display:none; }
-}
-
-/* Phone / small tablet */
-@media (max-width: 640px){
-  :root{ --header-h: 68px; }
-  .hero{ min-height: 92vh; padding-top: calc(var(--header-h) + 1rem); }
-  .hero > span:first-child{ font-size: .72rem; padding: 6px 11px; }
-  .hero h1{ max-width: 100%; }
-  .hero p{ font-size: .98rem; }
-  .buttons{ flex-direction: column; width: 100%; }
-  .btn{ text-align:center; width:100%; }
-
-  section:not(.hero):not(.contact){ padding: 4.5rem 6vw; }
-  .contact{ padding: 4.5rem 6vw 4rem; }
-  .section-header{ margin-bottom: 2.6rem; }
-
-  .services-grid, .projects-grid{ grid-template-columns: 1fr; gap: 1.2rem; }
-  .service-card, .project-card{ padding: 1.9rem 1.6rem; }
-
-  .contact-container{
-    grid-template-columns: 1fr;
-    padding: 1.8rem;
-    gap: 2rem;
-    border-radius: 14px;
-  }
-
-  .back-to-top{ right: 16px; bottom: 16px; width: 40px; height: 40px; }
-
-  /* lighten the backdrop-filter cost and grid density on small screens */
-  body::before{ background-size: 64px 64px, 64px 64px, 18px 18px, 18px 18px; }
-  header{ backdrop-filter: blur(10px); }
-}
-
-@media (max-width: 380px){
-  .logo{ font-size: 1.05rem; }
-  .hero h1{ font-size: clamp(1.9rem, 9vw, 2.4rem); }
-}
-
-/* ==================================================
-   ACCESSIBILITY
-   ================================================== */
-@media (prefers-reduced-motion: reduce){
-  *, *::before, *::after{
-    animation-duration: 0.001ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.001ms !important;
-    scroll-behavior: auto !important;
-  }
-  [data-reveal], .skill-tag, .service-card, .project-card{ opacity:1; transform:none; }
-}
-
-:focus-visible{
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muhammad Faizan Shahid | AI & Software Engineer</title>
+    <!-- Linking our external custom styling file -->
+    <link rel="stylesheet" href="index.css">
+</head>
+<body>
+
+    <!-- Header Navigation Section -->
+    <header>
+        <div class="logo">Muhammad Faizan Shahid<span>.</span></div>
+        <nav id="primary-nav">
+            <ul>
+                <li><a href="#services" data-tab="services">Expertise</a></li>
+                <li><a href="#skills" data-tab="skills">Toolkit</a></li>
+                <li><a href="#work" data-tab="work">Projects</a></li>
+                <li><a href="#contact" data-tab="contact">Contact</a></li>
+            </ul>
+        </nav>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle navigation menu" aria-expanded="false" aria-controls="primary-nav">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+    </header>
+    <div class="nav-backdrop" id="navBackdrop"></div>
+
+    <!-- Hero Workspace Section -->
+    <section class="hero">
+        <span data-reveal>App, Game & AI Agent Architect</span>
+        <h1 data-reveal style="--reveal-delay:.1s">Engineering Autonomous Logic & <br><span>Immersive 3D Ecosystems</span></h1>
+        <p data-reveal style="--reveal-delay:.2s">I blend full-stack web architectures and responsive mobile environments with intelligent AI pipelines and custom 3D mechanics to build optimized digital solutions.</p>
+        <div class="buttons" data-reveal style="--reveal-delay:.3s">
+            <a href="#work" class="btn btn-primary">Explore Engineering Assets</a>
+            <a href="#contact" class="btn btn-secondary">Get in Touch</a>
+        </div>
+    </section>
+
+    <!-- Core Expertise Section -->
+    <section id="services">
+        <div class="section-header" data-reveal>
+            <h2>Core Expertise</h2>
+            <p>High-precision technical execution across modern engineering disciplines.</p>
+        </div>
+        <div class="services-grid">
+            <div class="service-card" data-reveal>
+                <div class="icon">🤖</div>
+                <h3>AI Agent Architecture</h3>
+                <p>Designing autonomous agent workflows, chain-of-thought logic frameworks, and intelligent prompt optimization pipelines to streamline operations.</p>
+            </div>
+            <div class="service-card" data-reveal>
+                <div class="icon">🎮</div>
+                <h3>3D Game Engineering</h3>
+                <p>Structuring production-ready game loops, level progression workflows, and dynamic character behavior algorithms using Unity and Blender environments.</p>
+            </div>
+            <div class="service-card" data-reveal>
+                <div class="icon">💻</div>
+                <h3>Full-Stack Application Layouts</h3>
+                <p>Building secure server infrastructures, document manipulation engines, and multi-tier algorithmic hubs backed by modern frameworks.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Toolkit / Advanced Technical Stack Section -->
+    <section id="skills">
+        <div class="section-header" data-reveal>
+            <h2>The Technical Stack</h2>
+            <p>The developer tools, platforms, and intelligent environments I use to design apps.</p>
+        </div>
+        <div class="skills-container" data-reveal>
+            <div class="skill-tag">Autonomous AI Agents</div>
+            <div class="skill-tag">LLM Integration & Prompt Workflows</div>
+            <div class="skill-tag">Unity 3D Engine (C#)</div>
+            <div class="skill-tag">Blender Spatial Modeling</div>
+            <div class="skill-tag">Node.js / Express Architecture</div>
+            <div class="skill-tag">Expo / React Native</div>
+            <div class="skill-tag">TypeScript</div>
+            <div class="skill-tag">Python (PyMuPDF)</div>
+            <div class="skill-tag">PostgreSQL / PostGIS Systems</div>
+            <div class="skill-tag">JavaScript ES6+ / Mobile Frameworks</div>
+            <div class="skill-tag">Figma & Adobe Suite</div>
+            <div class="skill-tag">Cisco Packet Tracer / Networking</div>
+            <div class="skill-tag">AI-Assisted IDE Ecosystems (Cursor/Replit)</div>
+            <div class="skill-tag">Git Version Architecture</div>
+        </div>
+    </section>
+
+    <!-- Featured Engineering Productions Section -->
+    <section id="work">
+        <div class="section-header" data-reveal>
+            <h2>Featured Productions</h2>
+            <p>A closer look at live technical blueprints and interactive system architectures.</p>
+        </div>
+        <div class="projects-grid">
+            <!-- Project 1 -->
+            <div class="project-card" data-reveal>
+                <div class="project-meta">
+                    <span class="category">3D Interactive Environments / Unity</span>
+                    <h3>Adaptive 3D Gaming Environment</h3>
+                    <p>Designed and built immersive 3D execution layers with specialized mechanical progression curves and layout maps crafted using custom Blender assets.</p>
+                </div>
+            </div>
+            <!-- Project 2 -->
+            <div class="project-card" data-reveal>
+                <div class="project-meta">
+                    <span class="category">Full-Stack Document Infrastructure</span>
+                    <h3>PDFForge Pro Utility Platform</h3>
+                    <p>Architected a secure cross-platform document processing ecosystem driven by a modular Node.js/Express backend API for clean manipulation workflows.</p>
+                </div>
+            </div>
+            <!-- Project 3 -->
+            <div class="project-card" data-reveal>
+                <div class="project-meta">
+                    <span class="category">Data Science & Numeric Logic</span>
+                    <h3>Ultimate Calculator Network</h3>
+                    <p>Engineered a multi-purpose math computation website processing complex logic rules securely across dynamic front-end layers.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section with Live Web3Forms Integration -->
+    <section id="contact" class="contact">
+        <div class="section-header" data-reveal>
+            <h2>Initiate a Technical Collaboration</h2>
+            <p>Seeking production-ready full-stack software, autonomous AI agent pipelines, or specialized game environments? Let's build.</p>
+        </div>
+
+        <div class="contact-container">
+            <!-- Left Panel: Quick Contact Channels -->
+            <div class="contact-info" data-reveal>
+                <h3>Direct Communications</h3>
+                <p>📧 Secure Email: <br><a href="mailto:faizanshahid846@yahoo.com">faizanshahid846@yahoo.com</a></p>
+                <p>📞 Phone Line: <br><a href="tel:+3106437637">+310-6437637</a></p>
+            </div>
+
+            <!-- Right Panel: Contact Intake Form -->
+            <form action="https://api.web3forms.com/submit" method="POST" class="contact-form" data-reveal style="--reveal-delay:.15s">
+                <!-- Verified Live Web3Forms Token -->
+                <input type="hidden" name="access_key" value="239f1c5d-e5cf-418d-8741-ba02295e6ba6">
+                
+                <div class="form-group">
+                    <label for="name">Your Name</label>
+                    <input type="text" id="name" name="name" placeholder="John Doe" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="email">Email Address</label>
+                    <input type="email" id="email" name="email" placeholder="john@example.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="message">Project Blueprint / Message</label>
+                    <textarea id="message" name="message" rows="5" placeholder="Describe your web, game, or AI automation project specs..." required></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary form-submit-btn">Deploy Message</button>
+            </form>
+        </div>
+    </section>
+
+    <!-- Professional Footer -->
+    <footer>
+        <p>© 2026 Muhammad Faizan Shahid. Engineered for peak technical performance.</p>
+    </footer>
+
+    <!-- Back to top -->
+    <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+
+    <script src="script.js" defer></script>
+
+</body>
+</html>
